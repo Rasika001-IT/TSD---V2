@@ -1,0 +1,10 @@
+@import './styles/fonts.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply font-body bg-[#FCF9F4] text-[#1D1F26];
+}
+
