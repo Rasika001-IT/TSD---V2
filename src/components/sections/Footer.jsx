@@ -22,11 +22,54 @@ const Footer = () => {
             <img src={logo} alt="logo" className="h-12 w-auto mb-1" />
 
             <div className="flex gap-4">
-              <img src={fb} className="w-6 h-6 opacity-70 hover:opacity-100 transition cursor-pointer" />
-              <img src={tw} className="w-6 h-6 opacity-70 hover:opacity-100 transition cursor-pointer" />
-              <img src={ig} className="w-6 h-6 opacity-70 hover:opacity-100 transition cursor-pointer" />
-              <img src={li} className="w-6 h-6 opacity-70 hover:opacity-100 transition cursor-pointer" />
-            </div>
+
+  {/* Facebook (no link yet) */}
+  <img
+    src={fb}
+    className="w-6 h-6 opacity-70 hover:opacity-100 transition cursor-pointer"
+    alt="Facebook"
+  />
+
+  {/* Twitter / X */}
+  <a
+    href="https://x.com/TheSucessDigest"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <img
+      src={tw}
+      className="w-6 h-6 opacity-70 hover:opacity-100 transition cursor-pointer"
+      alt="Twitter"
+    />
+  </a>
+
+  {/* Instagram */}
+  <a
+    href="https://www.instagram.com/thesuccess_digest/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <img
+      src={ig}
+      className="w-6 h-6 opacity-70 hover:opacity-100 transition cursor-pointer"
+      alt="Instagram"
+    />
+  </a>
+
+  {/* LinkedIn */}
+  <a
+    href="https://www.linkedin.com/company/the-success-digest/?viewAsMember=true"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <img
+      src={li}
+      className="w-6 h-6 opacity-70 hover:opacity-100 transition cursor-pointer"
+      alt="LinkedIn"
+    />
+  </a>
+
+</div>
 
             <button className="bg-white text-black px-7 py-3 text-[14px] rounded-md font-medium w-fit mt-1">
               Subscribe
