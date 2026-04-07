@@ -3,31 +3,26 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 
 import Container from "../layout/Container";
-
-import img1 from "../../assets/images/magazine/mag-1.png";
-import img2 from "../../assets/images/magazine/mag-2.png";
-import img3 from "../../assets/images/magazine/mag-3.png";
-import img4 from "../../assets/images/magazine/mag-4.png";
+import usePosts from "../../hooks/usePosts";
 
 import leftArrow from "../../assets/icons/arrow-left.svg";
 import rightArrow from "../../assets/icons/arrow-right.svg";
-
-const magazineItems = [
-  { image: img1, title: "Most Prominent Leader to Follow in 2025" },
-  { image: img2, title: "Most Inspiring Leader in 2025" },
-  { image: img3, title: "Most Visionary Woman Leader in 2025" },
-  { image: img4, title: "Most Innovative Entrepreneur of Year 2025" },
-];
 
 const Magazine = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
+  const { posts, loading } = usePosts();
+
+  if (loading) return null;
+
+  const magazinePosts = posts.slice(0, 6); // ✅ 6 items
+
   return (
     <section className="bg-[#C89632]/5 py-20">
-
       <Container>
 
         {/* HEADER */}
@@ -51,7 +46,11 @@ const Magazine = () => {
             ref={prevRef}
             className="absolute left-[-30px] top-1/2 -translate-y-1/2 z-10"
           >
-            <img src={leftArrow} className="w-6 h-6 opacity-70 hover:opacity-100 transition" />
+            <img
+              src={leftArrow}
+              className="w-6 h-6 opacity-70 hover:opacity-100 transition"
+              alt="prev"
+            />
           </button>
 
           {/* RIGHT ARROW */}
@@ -59,36 +58,61 @@ const Magazine = () => {
             ref={nextRef}
             className="absolute right-[-30px] top-1/2 -translate-y-1/2 z-10"
           >
-            <img src={rightArrow} className="w-6 h-6 opacity-70 hover:opacity-100 transition" />
+            <img
+              src={rightArrow}
+              className="w-6 h-6 opacity-70 hover:opacity-100 transition"
+              alt="next"
+            />
           </button>
 
           <Swiper
             modules={[Navigation]}
             spaceBetween={30}
             slidesPerView={4}
-            onBeforeInit={(swiper) => {
+            breakpoints={{
+              0: { slidesPerView: 1 },
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 4 },
+            }}
+            navigation={{
+              prevEl: prevRef.current,
+              nextEl: nextRef.current,
+            }}
+            onInit={(swiper) => {
               swiper.params.navigation.prevEl = prevRef.current;
               swiper.params.navigation.nextEl = nextRef.current;
+              swiper.navigation.init();
+              swiper.navigation.update();
             }}
           >
-            {magazineItems.map((item, index) => (
-              <SwiperSlide key={index}>
+            {magazinePosts.map((post) => (
+              <SwiperSlide key={post.id}>
+                <Link to={`/article/${post.slug}`}>
+                  <div className="text-center cursor-pointer hover:opacity-80 transition">
 
-                <div className="text-center cursor-pointer">
+                    {/* IMAGE */}
+                    {post.image && (
+                      <img
+                        src={post.image}
+                        alt="magazine"
+                        className="w-full aspect-[291/372] object-cover"
+                      />
+                    )}
 
-                  {/* ✅ EXACT FIGMA RATIO */}
-                  <img
-                    src={item.image}
-                    alt="magazine"
-                    className="w-full aspect-[291/372] object-cover"
-                  />
+                    {/* TITLE */}
+                    <p
+                      className="font-heading font-semibold text-[15px] mt-4 leading-snug px-2"
+                      dangerouslySetInnerHTML={{ __html: post.title }}
+                    />
 
-                  <p className="font-heading font-semibold text-[15px] mt-4 leading-snug px-2">
-                    {item.title}
-                  </p>
+                    {/* EXCERPT */}
+                    <div
+                      className="text-xs text-black/60 mt-2 line-clamp-2 px-2"
+                      dangerouslySetInnerHTML={{ __html: post.excerpt }}
+                    />
 
-                </div>
-
+                  </div>
+                </Link>
               </SwiperSlide>
             ))}
           </Swiper>
@@ -97,13 +121,12 @@ const Magazine = () => {
 
         {/* BUTTON */}
         <div className="flex justify-center mt-12">
-            <button className="bg-black text-white px-6 py-3 text-sm rounded-[5px] hover:opacity-80 transition">
-                Subscribe to Print + Digital
-            </button>
+          <button className="bg-black text-white px-6 py-3 text-sm rounded-[5px] hover:opacity-80 transition">
+            Subscribe to Print + Digital
+          </button>
         </div>
 
       </Container>
-
     </section>
   );
 };

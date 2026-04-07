@@ -1,4 +1,5 @@
 import Container from "../layout/Container";
+import { Link } from "react-router-dom";
 import heroImage from "../../assets/images/hero.png";
 
 const Hero = () => {
@@ -33,10 +34,11 @@ const Hero = () => {
             {/* BUTTONS */}
             <div className="mt-8 flex items-center gap-4">
 
-              <button className="bg-black text-white px-6 py-3 text-[14px] rounded-md hover:bg-black/80 transition">
-                Read full story →
-              </button>
-
+              <Link to="/article/kamiya-jani">
+                <button className="bg-black text-white px-6 py-3 text-[14px] rounded-md hover:bg-black/80 transition">
+                  Read full story →
+                </button>
+              </Link>
               <button className="border border-black px-6 py-3 text-[14px] rounded-md hover:bg-black hover:text-white transition">
                 Explore Magazine
               </button>

@@ -10,6 +10,8 @@ import Featured from "./pages/Featured";
 import WomenInBusiness from "./pages/WomenInBusiness";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import ArticlePage from "./pages/ArticlePage";
+
 
 function App() {
   return (
@@ -24,6 +26,7 @@ function App() {
         <Route path="/women-in-business" element={<WomenInBusiness />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/article/:slug" element={<ArticlePage />} />
       </Routes>
     </Router>
   );
