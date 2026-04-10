@@ -39,9 +39,11 @@ const Hero = () => {
                   Read full story →
                 </button>
               </Link>
+              <Link to="/magazine">
               <button className="border border-black px-6 py-3 text-[14px] rounded-md hover:bg-black hover:text-white transition">
                 Explore Magazine
               </button>
+              </Link>
 
             </div>
 
