@@ -1,74 +1,22 @@
 import Container from "../layout/Container";
 import BlogCard from "./BlogCard";
-import articleImg from "../../assets/images/article.png";
-
-const blogs = [
-  {
-    id: 1,
-    title: "Inside the Boardrooms of Tomorrow",
-    excerpt: "How the next generation of executive is redefining corporate governance.",
-    image: articleImg,
-    tag: "EXCLUSIVE",
-  },
-  {
-    id: 2,
-    title: "The Global Supply Chain Revolution",
-    excerpt: "Companies that transformed their logistics are now leading their industries.",
-    image: articleImg,
-    tag: "INVESTIGATION",
-  },
-  {
-    id: 3,
-    title: "The Rise of Sustainable Leadership",
-    excerpt: "CEOs who are putting environmental responsibility at the core of business.",
-    image: articleImg,
-    tag: "EXCLUSIVE",
-  },
-  {
-    id: 4,
-    title: "Inside the Boardrooms of Tomorrow",
-    excerpt: "How the next generation of executive is redefining corporate governance.",
-    image: articleImg,
-    tag: "EXCLUSIVE",
-  },
-  {
-    id: 5,
-    title: "The Global Supply Chain Revolution",
-    excerpt: "Companies that transformed their logistics are now leading their industries.",
-    image: articleImg,
-    tag: "INVESTIGATION",
-  },
-  {
-    id: 6,
-    title: "The Rise of Sustainable Leadership",
-    excerpt: "CEOs who are putting environmental responsibility at the core of business.",
-    image: articleImg,
-    tag: "EXCLUSIVE",
-  },
-  {
-    id: 7,
-    title: "Inside the Boardrooms of Tomorrow",
-    excerpt: "How the next generation of executive is redefining corporate governance.",
-    image: articleImg,
-    tag: "EXCLUSIVE",
-  },
-  {
-    id: 8,
-    title: "The Global Supply Chain Revolution",
-    excerpt: "Companies that transformed their logistics are now leading their industries.",
-    image: articleImg,
-    tag: "INVESTIGATION",
-  },
-  {
-    id: 9,
-    title: "The Rise of Sustainable Leadership",
-    excerpt: "CEOs who are putting environmental responsibility at the core of business.",
-    image: articleImg,
-    tag: "EXCLUSIVE",
-  },
-];
-
+import usePosts from "../../hooks/usePosts";
+ 
 const BlogGrid = () => {
+  const { posts, loading, pagination, changePage } = usePosts(null, 9, true, 'blogs');
+
+  if (loading && pagination.currentPage === 1) {
+    return (
+      <section className="py-20">
+        <Container>
+          <div className="text-center">
+            <p className="text-lg">Loading blogs...</p>
+          </div>
+        </Container>
+      </section>
+    );
+  }
+
   return (
     <section className="py-20">
       <Container>
@@ -88,10 +36,127 @@ const BlogGrid = () => {
 
         {/* GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {blogs.map((blog) => (
-            <BlogCard key={blog.id} data={blog} />
-          ))}
+          {posts.length > 0 ? (
+            posts.map((blog) => (
+              <BlogCard key={blog.id} data={blog} />
+            ))
+          ) : (
+            <div className="col-span-full text-center">
+              <p className="text-gray-500">No blog posts available.</p>
+            </div>
+          )}
         </div>
+
+        {/* PAGINATION */}
+        {pagination.totalPages > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-12">
+            {/* Previous Button */}
+            <button
+              onClick={() => changePage(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 1}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+                pagination.currentPage === 1
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Previous
+            </button>
+
+            {/* Page Numbers with Ellipsis */}
+            <div className="flex gap-1">
+              {(() => {
+                const { currentPage, totalPages } = pagination;
+                const pages = [];
+                
+                // Always show first page
+                if (currentPage > 3) {
+                  pages.push(
+                    <button
+                      key={1}
+                      onClick={() => changePage(1)}
+                      className="w-10 h-10 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      1
+                    </button>
+                  );
+                  
+                  // Show ellipsis if there's a gap
+                  if (currentPage > 4) {
+                    pages.push(
+                      <span key="ellipsis-start" className="w-10 h-10 flex items-center justify-center text-gray-500">
+                        ...
+                      </span>
+                    );
+                  }
+                }
+                
+                // Show current page and next 2 pages
+                const startPage = Math.max(1, currentPage - 1);
+                const endPage = Math.min(totalPages, currentPage + 2);
+                
+                for (let i = startPage; i <= endPage; i++) {
+                  pages.push(
+                    <button
+                      key={i}
+                      onClick={() => changePage(i)}
+                      className={`w-10 h-10 rounded-md text-sm font-medium transition ${
+                        i === currentPage
+                          ? 'bg-primary text-white'
+                          : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      {i}
+                    </button>
+                  );
+                }
+                
+                // Show ellipsis and last page if there's a gap at the end
+                if (endPage < totalPages) {
+                  if (endPage < totalPages - 1) {
+                    pages.push(
+                      <span key="ellipsis-end" className="w-10 h-10 flex items-center justify-center text-gray-500">
+                        ...
+                      </span>
+                    );
+                  }
+                  
+                  pages.push(
+                    <button
+                      key={totalPages}
+                      onClick={() => changePage(totalPages)}
+                      className="w-10 h-10 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+                    >
+                      {totalPages}
+                    </button>
+                  );
+                }
+                
+                return pages;
+              })()}
+            </div>
+
+            {/* Next Button */}
+            <button
+              onClick={() => changePage(pagination.currentPage + 1)}
+              disabled={pagination.currentPage === pagination.totalPages}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+                pagination.currentPage === pagination.totalPages
+                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        {/* Loading indicator for page changes */}
+        {loading && pagination.currentPage > 1 && (
+          <div className="text-center mt-8">
+            <p className="text-sm text-gray-500">Loading...</p>
+          </div>
+        )}
 
       </Container>
     </section>
