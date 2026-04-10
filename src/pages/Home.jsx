@@ -10,6 +10,7 @@ import Blogs from "../components/sections/Blogs";
 import EditorsPick from "../components/sections/EditorsPick";
 import Newsletter from "../components/sections/Newsletter";
 import Footer from "../components/sections/Footer";
+import MagazineSection from "../components/MagazineSection";
 
 const Home = () => {
   return (
@@ -18,7 +19,7 @@ const Home = () => {
       <Hero />
       <TrendingMarquee />
       <FeaturedArticles/>
-      <Magazine/>
+      <MagazineSection/>
       <WomenInBusiness/>
       <BusinessFinance/>
       <MoreSections/>
