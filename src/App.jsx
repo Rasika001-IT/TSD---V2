@@ -11,6 +11,9 @@ import WomenInBusiness from "./pages/WomenInBusiness";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ArticlePage from "./pages/ArticlePage";
+import PrivacyPolicy from "./pages/PrivacyPolicyPage";
+import ContentUsagePolicy from "./pages/ContentUsagePolicy";
+import Advertise from "./pages/Advertise";
 
 
 function App() {
@@ -27,6 +30,9 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/article/:slug" element={<ArticlePage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/content-usage-policy" element={<ContentUsagePolicy />} />
+        <Route path="/advertise" element={<Advertise />} />
       </Routes>
     </Router>
   );
