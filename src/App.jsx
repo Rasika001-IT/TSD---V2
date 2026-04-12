@@ -15,7 +15,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicyPage";
 import ContentUsagePolicy from "./pages/ContentUsagePolicy";
 import Advertise from "./pages/Advertise";
 import CategoryPage from "./pages/CategoryPage";
-
+import ArchivePage from "./pages/ArchivePage";
+import AuthorPage from "./pages/AuthorPage";
 
 function App() {
   return (
@@ -36,6 +37,20 @@ function App() {
         <Route path="/advertise" element={<Advertise />} />
         <Route path="/news/:category" element={<CategoryPage />} />
         <Route path="/blogs/:category" element={<CategoryPage />} />
+        <Route
+  path="/category/:slug"
+  element={<ArchivePage />}
+/>
+
+<Route
+  path="/tag/:slug"
+  element={<ArchivePage />}
+/>
+
+<Route
+  path="/author/:slug"
+  element={<AuthorPage />}
+/>
       </Routes>
     </Router>
   );

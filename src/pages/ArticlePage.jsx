@@ -1,180 +1,251 @@
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { articles } from "../data/articles";
-import usePosts from "../hooks/usePosts";
 
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/sections/Footer";
 import Newsletter from "../components/sections/Newsletter";
 
+import {
+  fetchPostBySlug,
+  fetchCategories,
+  fetchTags,
+  fetchPosts,
+} from "../services/wordpress";
+
 const ArticlePage = () => {
   const { slug } = useParams();
-  const { posts, loading } = usePosts();
 
-  const localArticle = articles.find((a) => a.slug === slug);
-  const wpArticle = posts.find((p) => p.slug === slug);
+  const [post, setPost] = useState(null);
+  const [taxonomyData, setTaxonomyData] = useState([]);
+  const [mustReadPosts, setMustReadPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const article = localArticle || wpArticle;
+  useEffect(() => {
+    const loadArticle = async () => {
+      try {
+        setLoading(true);
 
-  if (loading) return <div className="p-20">Loading...</div>;
-  if (!article) return <div className="p-20">Article not found</div>;
+        const [wpPost, categories, tags, allPosts] =
+          await Promise.all([
+            fetchPostBySlug(slug),
+            fetchCategories(),
+            fetchTags(),
+            fetchPosts(),
+          ]);
 
-  const relatedPosts = articles.filter((a) => a.slug !== slug).slice(0, 2);
+        if (!wpPost) return;
+
+        setPost(wpPost);
+
+        const categoryItems = categories
+          .filter((cat) =>
+            wpPost.categories.includes(cat.id)
+          )
+          .map((cat) => ({
+            name: cat.name,
+            slug: cat.slug,
+            type: "category",
+          }));
+
+        const tagItems = tags
+          .filter((tag) =>
+            wpPost.tags.includes(tag.id)
+          )
+          .map((tag) => ({
+            name: tag.name,
+            slug: tag.slug,
+            type: "tag",
+          }));
+
+        setTaxonomyData([
+          ...categoryItems,
+          ...tagItems,
+        ]);
+
+        const related = allPosts
+          .filter((p) => p.slug !== slug)
+          .slice(0, 2);
+
+        setMustReadPosts(related);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadArticle();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex justify-center items-center bg-[#FCF9F4]">
+          Loading...
+        </div>
+      </>
+    );
+  }
+
+  if (!post) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex justify-center items-center bg-[#FCF9F4]">
+          Article not found.
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <Navbar />
 
-      <main className="bg-[#FCF9F4]">
-
-        {/* ARTICLE SECTION */}
-        <section className="max-w-[1050px] mx-auto px-6 py-20">
+      <main className="bg-[#FCF9F4] min-h-screen">
+        <section className="max-w-[1100px] mx-auto px-6 py-14">
 
           {/* HERO IMAGE */}
-          {article.image && (
+          {post.image && (
             <img
-              src={article.image}
-              alt="article"
-              className="w-full h-[550px] object-cover rounded-sm mb-14"
+              src={post.image}
+              alt={post.title}
+              className="w-full h-[500px] object-cover mb-8"
             />
           )}
 
-          {/* META */}
-          <p className="text-sm text-black/50 mb-4 tracking-[2px] uppercase">
-            Featured • Editor's Pick
-          </p>
-
           {/* TITLE */}
-          <h1
-            className="font-heading text-5xl md:text-6xl font-bold leading-[1.1] mb-8"
-            dangerouslySetInnerHTML={{
-              __html: article.title?.rendered || article.title,
-            }}
-          />
+          <h1 className="font-heading text-5xl leading-tight mb-4">
+            {post.title.replace(/<[^>]+>/g, "")}
+          </h1>
 
-          {/* AUTHOR/DATE */}
-          <p className="text-sm text-black/60 mb-14">
-            By The Success Digest Editorial Team • April 2026
-          </p>
+          {/* META */}
+          <div className="flex flex-wrap gap-1 text-sm text-gray-500 mb-10">
+            {taxonomyData.map((item, i) => (
+              <Link
+                key={i}
+                to={`/${item.type}/${item.slug}`}
+                className="hover:text-black"
+              >
+                {item.name}
+                {i < taxonomyData.length - 1 && ","}
+              </Link>
+            ))}
+
+            <span>/</span>
+
+            <Link
+              to={`/author/${post.authorSlug}`}
+              className="hover:text-black"
+            >
+              By {post.author}
+            </Link>
+          </div>
 
           {/* CONTENT */}
-          <div
+          <article
             className="
-              prose
+              prose 
+              prose-lg 
               max-w-none
               prose-headings:font-heading
               prose-headings:text-[#1D1F26]
-              prose-p:text-[17px]
-              prose-p:leading-[2]
-              prose-p:mb-8
-              prose-li:text-[17px]
-              prose-li:leading-[2]
-              prose-strong:text-black
-              prose-h2:text-3xl
-              prose-h2:mt-14
-              prose-h2:mb-6
-              prose-ul:mb-8
+              prose-headings:mb-4
+              prose-headings:mt-10
+              prose-p:mb-5
+              prose-p:leading-8
+              prose-li:leading-8
+              prose-strong:text-[#1D1F26]
             "
             dangerouslySetInnerHTML={{
-              __html: article.content?.rendered || article.content,
+              __html: post.content,
             }}
           />
 
           {/* DIVIDER */}
-          <div className="flex justify-center my-20">
-            <div className="w-24 h-[3px] bg-[#C89632]" />
+          <div className="flex justify-center my-14">
+            <div className="w-14 h-[2px] bg-[#C89632]" />
           </div>
 
-          {/* PREV/NEXT */}
-          <div className="flex justify-between text-sm text-black/50 border-t border-b border-black/10 py-7">
-            <button className="hover:text-black transition">
-              ← Previous Post
-            </button>
-
-            <button className="hover:text-black transition">
-              Next Post →
-            </button>
-          </div>
-
-        </section>
-
-        {/* MUST READ */}
-        <section className="max-w-[1050px] mx-auto px-6 py-14">
-          <h2 className="font-heading text-5xl font-bold mb-14">
-            Must Read
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-16">
-            {relatedPosts.map((post) => (
-              <Link key={post.slug} to={`/article/${post.slug}`}>
-                <div className="group cursor-pointer">
-
-                  <div className="overflow-hidden mb-5">
-                    <img
-                      src={post.image}
-                      alt={post.title}
-                      className="w-full h-[280px] object-cover group-hover:scale-105 transition duration-500"
-                    />
-                  </div>
-
-                  <h3
-                    className="font-heading text-3xl leading-snug group-hover:text-[#C89632] transition"
-                    dangerouslySetInnerHTML={{
-                      __html: post.title?.rendered || post.title,
-                    }}
-                  />
-
-                  <p className="text-sm text-black/50 mt-3">
-                    Industries, Markets, News
-                  </p>
-
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* COMMENT SECTION */}
-        <section className="max-w-[1050px] mx-auto px-6 py-24 text-center">
-          <h2 className="font-heading text-5xl font-bold mb-5">
-            Leave a Comment
-          </h2>
-
-          <p className="text-sm text-black/50 mb-12">
-            Your email address will not be published. Required fields are marked *
+          <p className="text-center text-gray-500 mb-14">
+            Thank you for reading The Success Digest.
           </p>
 
-          <textarea
-            placeholder="Type here..."
-            className="w-full h-44 border border-black/10 bg-white p-5 mb-6 outline-none resize-none"
-          />
-
-          <div className="grid md:grid-cols-3 gap-5 mb-8">
-            <input
-              type="text"
-              placeholder="Name*"
-              className="border border-black/10 p-4 outline-none"
-            />
-
-            <input
-              type="email"
-              placeholder="Email*"
-              className="border border-black/10 p-4 outline-none"
-            />
-
-            <input
-              type="text"
-              placeholder="Website url"
-              className="border border-black/10 p-4 outline-none"
-            />
+          <div className="flex justify-center mb-14">
+            <div className="w-14 h-[2px] bg-[#C89632]" />
           </div>
 
-          <button className="bg-black text-white px-10 py-3 hover:bg-[#C89632] transition">
-            Post Comment
-          </button>
+          {/* PREV NEXT */}
+          <div className="flex justify-between border-y py-6 mb-20 text-sm text-gray-400">
+            <button>← Previous Post</button>
+            <button>Next Post →</button>
+          </div>
+
+          {/* MUST READ */}
+          <section className="mb-24">
+            <h2 className="font-heading text-5xl mb-10">
+              Must Read
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-8">
+              {mustReadPosts.map((item) => (
+                <Link
+                  key={item.slug}
+                  to={`/article/${item.slug}`}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-[240px] object-cover mb-4"
+                  />
+
+                  <h3 className="font-heading text-2xl leading-snug">
+                    {item.title.replace(/<[^>]+>/g, "")}
+                  </h3>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {/* COMMENT SECTION */}
+          <section className="text-center">
+            <h2 className="font-heading text-5xl mb-2">
+              Leave a Comment
+            </h2>
+
+            <p className="text-gray-400 mb-8">
+              Your email address will not be published.
+            </p>
+
+            <textarea
+              placeholder="Type here..."
+              className="w-full h-40 p-4 border mb-5"
+            />
+
+            <div className="grid md:grid-cols-3 gap-4 mb-6">
+              <input
+                placeholder="Name"
+                className="border p-3"
+              />
+              <input
+                placeholder="Email"
+                className="border p-3"
+              />
+              <input
+                placeholder="Website"
+                className="border p-3"
+              />
+            </div>
+
+            <button className="bg-black text-white px-8 py-3">
+              Post Comment
+            </button>
+          </section>
+
         </section>
 
         <Newsletter />
-
       </main>
 
       <Footer />

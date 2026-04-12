@@ -9,38 +9,57 @@ const formatPost = (post) => ({
   excerpt: post.excerpt.rendered,
   link: post.link,
   date: post.date,
+
   image:
     post._embedded?.["wp:featuredmedia"]?.[0]?.source_url || null,
+
   categories: post.categories || [],
   tags: post.tags || [],
+
   author: post._embedded?.author?.[0]?.name || "TSD Staff",
-  authorLink: post._embedded?.author?.[0]?.link || "#",
+
+  authorId:
+    post._embedded?.author?.[0]?.id || null,
+
+  authorSlug:
+    post._embedded?.author?.[0]?.slug || "",
+
+  authorAvatar:
+    post._embedded?.author?.[0]?.avatar_urls?.["96"] ||
+    null,
+
+  authorLink:
+    post._embedded?.author?.[0]?.link || "#",
 });
 
 export const fetchPosts = async () => {
-  let page = 1;
-  let allPosts = [];
-  let hasMore = true;
-
   try {
-    while (hasMore) {
+    const firstResponse = await fetch(
+      `${POSTS_URL}?per_page=100&page=1&_embed=true`
+    );
+
+    if (!firstResponse.ok) {
+      throw new Error(
+        `HTTP error! status: ${firstResponse.status}`
+      );
+    }
+
+    const totalPages = parseInt(
+      firstResponse.headers.get("X-WP-TotalPages") || "1"
+    );
+
+    let allPosts = await firstResponse.json();
+
+    for (let page = 2; page <= totalPages; page++) {
       const response = await fetch(
         `${POSTS_URL}?per_page=100&page=${page}&_embed=true`
       );
 
-      if (!response.ok) {
-        hasMore = false;
-        break;
-      }
+      if (!response.ok) continue;
 
       const data = await response.json();
 
-      if (data.length === 0) {
-        hasMore = false;
-      } else {
-        allPosts = [...allPosts, ...data];
-        page++;
-      }
+      allPosts = [...allPosts, ...data];
     }
 
     return allPosts.map(formatPost);
@@ -60,7 +79,9 @@ export const fetchPostsWithPagination = async (
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(
+        `HTTP error! status: ${response.status}`
+      );
     }
 
     const data = await response.json();
@@ -80,7 +101,10 @@ export const fetchPostsWithPagination = async (
       currentPage: page,
     };
   } catch (error) {
-    console.error("Error fetching paginated posts:", error);
+    console.error(
+      "Error fetching paginated posts:",
+      error
+    );
 
     return {
       posts: [],
@@ -101,14 +125,19 @@ export const fetchPostsByCategory = async (
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(
+        `HTTP error! status: ${response.status}`
+      );
     }
 
     const data = await response.json();
 
     return data.map(formatPost);
   } catch (error) {
-    console.error("Error fetching posts by category:", error);
+    console.error(
+      "Error fetching posts by category:",
+      error
+    );
     return [];
   }
 };
@@ -123,15 +152,46 @@ export const fetchPostsByTag = async (
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(
+        `HTTP error! status: ${response.status}`
+      );
     }
 
     const data = await response.json();
 
     return data.map(formatPost);
   } catch (error) {
-    console.error("Error fetching posts by tag:", error);
+    console.error(
+      "Error fetching posts by tag:",
+      error
+    );
     return [];
+  }
+};
+
+export const fetchPostBySlug = async (slug) => {
+  try {
+    const response = await fetch(
+      `${POSTS_URL}?slug=${slug}&_embed=true`
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `HTTP error! status: ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+
+    if (!data.length) return null;
+
+    return formatPost(data[0]);
+  } catch (error) {
+    console.error(
+      "Error fetching post by slug:",
+      error
+    );
+    return null;
   }
 };
 
@@ -142,12 +202,17 @@ export const fetchCategories = async () => {
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(
+        `HTTP error! status: ${response.status}`
+      );
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    console.error(
+      "Error fetching categories:",
+      error
+    );
     return [];
   }
 };
@@ -159,12 +224,17 @@ export const fetchTags = async () => {
     );
 
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      throw new Error(
+        `HTTP error! status: ${response.status}`
+      );
     }
 
     return await response.json();
   } catch (error) {
-    console.error("Error fetching tags:", error);
+    console.error(
+      "Error fetching tags:",
+      error
+    );
     return [];
   }
 };
