@@ -12,13 +12,13 @@ const navLinks = [
     name: "News",
     path: "/news",
     dropdown: [
-      "Regulations",
-      "Sports",
-      "Startups",
-      "Breaking News",
-      "Crypto",
-      "Industries",
-      "Markets",
+      { name: "Regulations", path: "/news/regulations" },
+      { name: "Sports", path: "/news/sports" },
+      { name: "Startups", path: "/news/startups" },
+      { name: "Breaking News", path: "/news/breaking-news" },
+      { name: "Crypto", path: "/news/crypto" },
+      { name: "Industries", path: "/news/industries" },
+      { name: "Markets", path: "/news/markets" },
     ],
   },
 
@@ -26,27 +26,29 @@ const navLinks = [
     name: "Blogs",
     path: "/blogs",
     dropdown: [
-      "Explainers",
-      "How To",
-      "Lifestyle",
-      "Sports",
-      "Travel",
-      "Events",
-      "Crypto",
+      { name: "Explainers", path: "/blogs/explainers" },
+      { name: "How To", path: "/blogs/how-to" },
+      { name: "Lifestyle", path: "/blogs/lifestyle" },
+      { name: "Sports", path: "/blogs/sports" },
+      { name: "Travel", path: "/blogs/travel" },
+      { name: "Events", path: "/blogs/events" },
+      { name: "Crypto", path: "/blogs/crypto-blogs" },
     ],
   },
 
   { name: "Magazine", path: "/magazine" },
+
   { name: "Featured Articles", path: "/featured" },
+
   { name: "Women in Business", path: "/women-in-business" },
 
   {
     name: "About Us",
     path: "/about",
     dropdown: [
-      "About Us",
-      "Privacy Policy",
-      "Advertise With Us",
+      { name: "About Us", path: "/about" },
+      { name: "Privacy Policy", path: "/privacy-policy" },
+      { name: "Advertise With Us", path: "/advertise" },
     ],
   },
 ];
@@ -60,6 +62,7 @@ const Navbar = () => {
     };
 
     window.addEventListener("scroll", handleScroll);
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -74,7 +77,6 @@ const Navbar = () => {
       <Container>
         <div className="flex items-center justify-between h-[72px]">
 
-          {/* LEFT */}
           <div className="flex items-center gap-10">
 
             <NavLink to="/">
@@ -93,9 +95,7 @@ const Navbar = () => {
                   <NavLink
                     to={link.path}
                     className={({ isActive }) =>
-                      `relative group ${
-                        isActive ? "font-semibold" : ""
-                      }`
+                      `relative ${isActive ? "font-semibold" : ""}`
                     }
                   >
                     {({ isActive }) => (
@@ -111,20 +111,19 @@ const Navbar = () => {
                     )}
                   </NavLink>
 
-                  {/* DROPDOWN */}
                   {link.dropdown && (
-                    <div className="absolute top-full left-0 mt-4 w-[190px] bg-white shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <div className="absolute top-full left-0 mt-4 w-[190px] bg-[#FFFFFF] shadow-lg rounded-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
 
                       <div className="py-3 px-4 flex flex-col gap-3 text-[#1D1F26]">
 
                         {link.dropdown.map((item, i) => (
-                          <a
+                          <NavLink
                             key={i}
-                            href="#"
+                            to={item.path}
                             className="hover:translate-x-1 transition-all duration-200"
                           >
-                            {item}
-                          </a>
+                            {item.name}
+                          </NavLink>
                         ))}
 
                       </div>
@@ -139,7 +138,6 @@ const Navbar = () => {
 
           </div>
 
-          {/* RIGHT */}
           <div className="flex items-center gap-6">
 
             <div className="flex items-center bg-white/70 border border-gray-200 rounded-md px-3 py-1.5">
@@ -148,6 +146,7 @@ const Navbar = () => {
                 placeholder="Search"
                 className="bg-transparent outline-none text-[13px] w-32 placeholder-gray-500"
               />
+
               <img
                 src={searchIcon}
                 alt="Search"

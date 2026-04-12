@@ -14,6 +14,7 @@ import ArticlePage from "./pages/ArticlePage";
 import PrivacyPolicy from "./pages/PrivacyPolicyPage";
 import ContentUsagePolicy from "./pages/ContentUsagePolicy";
 import Advertise from "./pages/Advertise";
+import CategoryPage from "./pages/CategoryPage";
 
 
 function App() {
@@ -33,6 +34,8 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/content-usage-policy" element={<ContentUsagePolicy />} />
         <Route path="/advertise" element={<Advertise />} />
+        <Route path="/news/:category" element={<CategoryPage />} />
+        <Route path="/blogs/:category" element={<CategoryPage />} />
       </Routes>
     </Router>
   );

@@ -3,7 +3,7 @@ const AboutHero = () => {
     <div className="text-center mb-20">
 
       {/* Title */}
-      <h1 className="text-4xl md:text-5xl font-heading mb-4">
+      <h1 className="text-4xl md:text-5xl font-bold font-heading mb-4">
         About Us
       </h1>
 
