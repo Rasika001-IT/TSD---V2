@@ -10,6 +10,7 @@ import useCategoryPosts from "../hooks/useCategoryPosts";
 const sidebarSections = [
   {
     title: "Blogs",
+    path: "/blogs",
     links: [
       { name: "Crypto", path: "/blogs/crypto-blogs" },
       { name: "Events", path: "/blogs/events" },
@@ -22,18 +23,22 @@ const sidebarSections = [
   },
   {
     title: "Editor's Highlights",
+    path: "/category/editors-highlights",
     links: [],
   },
   {
     title: "Featured Articles",
+    path: "/featured-articles",
     links: [],
   },
   {
     title: "Magazine",
+    path: "/magazine",
     links: [],
   },
   {
     title: "News",
+    path: "/news",
     links: [
       { name: "Breaking News", path: "/news/breaking-news" },
       { name: "Crypto", path: "/news/crypto" },
@@ -46,10 +51,12 @@ const sidebarSections = [
   },
   {
     title: "Women of Impact",
+    path: "/women-in-business",
     links: [],
   },
   {
     title: "Uncategorized",
+    path: "/blogs",
     links: [],
   },
 ];
@@ -93,9 +100,22 @@ const CategoryPage = () => {
                 <div className="space-y-8">
                   {sidebarSections.map((section, index) => (
                     <div key={index}>
-                      <h3 className="font-body font-semibold text-lg mb-4">
-                        {section.title}
-                      </h3>
+                      {section.path ? (
+  <Link
+    to={section.path}
+    className={`block font-body font-semibold text-lg mb-4 transition ${
+      location.pathname.startsWith(section.path)
+        ? "text-primary"
+        : "text-[#1D1F26] hover:text-primary"
+    }`}
+  >
+    {section.title}
+  </Link>
+) : (
+  <h3 className="font-body font-semibold text-lg mb-4">
+    {section.title}
+  </h3>
+)}
 
                       <div className="flex flex-col gap-3">
                         {section.links.map((link, i) => (
