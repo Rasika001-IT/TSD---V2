@@ -14,20 +14,20 @@ import MagazineSection from "../components/MagazineSection";
 
 const Home = () => {
   return (
-    <>
+    <div className="bg-[#FCF9F4]">
       <Navbar />
       <Hero />
       <TrendingMarquee />
-      <FeaturedArticles/>
-      <MagazineSection/>
-      <WomenInBusiness/>
-      <BusinessFinance/>
-      <MoreSections/>
-      <Blogs/>
-      <EditorsPick/>
-      <Newsletter/>
-      <Footer/>
-    </>
+      <FeaturedArticles />
+      <MagazineSection />
+      <WomenInBusiness />
+      <BusinessFinance />
+      <MoreSections />
+      <Blogs />
+      <EditorsPick />
+      <Newsletter />
+      <Footer />
+    </div>
   );
 };
 

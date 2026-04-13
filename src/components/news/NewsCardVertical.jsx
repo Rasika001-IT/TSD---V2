@@ -1,27 +1,33 @@
-import sampleImg from "../../assets/images/article.png";
+import { Link } from "react-router-dom";
 
-const NewsCardVertical = () => {
+const stripHtml = (html) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
+};
+
+const NewsCardVertical = ({ post }) => {
   return (
-    <div className="cursor-pointer group transition-all duration-300 hover:opacity-90 space-y-2">
+    <Link to={`/article/${post.slug}`}>
+      <div className="cursor-pointer group transition-all duration-300 hover:opacity-90 space-y-2">
 
-      {/* IMAGE */}
-      <img
-        src={sampleImg}
-        alt="news"
-        className="w-full h-[170px] object-cover rounded-sm transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-      />
+        <img
+          src={post.image}
+          alt="news"
+          className="w-full h-[170px] object-cover rounded-sm transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+        />
 
-      {/* CONTENT */}
-      <h3 className="font-heading text-[15px] leading-[1.5] group-hover:underline">
-        AMC Entertainment Pursues $2.5 Billion Refinancing to Address Existing Debt
-      </h3>
+        <h3
+          className="font-heading text-[15px] leading-[1.5] group-hover:underline"
+          dangerouslySetInnerHTML={{ __html: post.title }}
+        />
 
-      <p className="font-body text-[13.5px] text-gray-600 leading-[1.6]">
-        AMC Entertainment Holdings Inc., the U.S.-based movie theatre chain,
-        has begun marketing a refinancing package...
-      </p>
+        <p className="font-body text-[13.5px] text-gray-600 leading-[1.6]">
+          {stripHtml(post.excerpt)}
+        </p>
 
-    </div>
+      </div>
+    </Link>
   );
 };
 

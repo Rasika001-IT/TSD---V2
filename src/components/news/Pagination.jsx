@@ -1,12 +1,50 @@
-const Pagination = () => {
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}) => {
   return (
     <div className="flex justify-center items-center gap-3 mt-16 font-body">
-      <button className="w-10 h-10 bg-black text-white text-sm rounded-sm">1</button>
-      <button className="w-10 h-10 bg-gray-200 text-sm rounded-sm">2</button>
-      <button className="w-10 h-10 bg-gray-200 text-sm rounded-sm">3</button>
-      <button className="w-10 h-10 bg-gray-200 text-sm rounded-sm">4</button>
-      <span className="px-3 text-gray-400 tracking-widest">......</span>
-      <button className="w-10 h-10 bg-gray-200 text-sm rounded-sm">12</button>
+      {[1, 2, 3, 4].map((page) => (
+        page <= totalPages && (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={`
+              w-10 h-10 text-sm rounded-sm transition
+              ${
+                currentPage === page
+                  ? "bg-black text-white"
+                  : "bg-gray-200 text-black"
+              }
+            `}
+          >
+            {page}
+          </button>
+        )
+      ))}
+
+      {totalPages > 5 && (
+        <>
+          <span className="px-2 text-gray-400 tracking-widest">
+            ......
+          </span>
+
+          <button
+            onClick={() => onPageChange(totalPages)}
+            className={`
+              w-10 h-10 text-sm rounded-sm transition
+              ${
+                currentPage === totalPages
+                  ? "bg-black text-white"
+                  : "bg-gray-200 text-black"
+              }
+            `}
+          >
+            {totalPages}
+          </button>
+        </>
+      )}
     </div>
   );
 };
