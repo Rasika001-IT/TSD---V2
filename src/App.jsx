@@ -11,7 +11,12 @@ import WomenInBusiness from "./pages/WomenInBusiness";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ArticlePage from "./pages/ArticlePage";
-
+import PrivacyPolicy from "./pages/PrivacyPolicyPage";
+import ContentUsagePolicy from "./pages/ContentUsagePolicy";
+import Advertise from "./pages/Advertise";
+import CategoryPage from "./pages/CategoryPage";
+import ArchivePage from "./pages/ArchivePage";
+import AuthorPage from "./pages/AuthorPage";
 
 function App() {
   return (
@@ -27,6 +32,25 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/article/:slug" element={<ArticlePage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/content-usage-policy" element={<ContentUsagePolicy />} />
+        <Route path="/advertise" element={<Advertise />} />
+        <Route path="/news/:category" element={<CategoryPage />} />
+        <Route path="/blogs/:category" element={<CategoryPage />} />
+        <Route
+  path="/category/:slug"
+  element={<ArchivePage />}
+/>
+
+<Route
+  path="/tag/:slug"
+  element={<ArchivePage />}
+/>
+
+<Route
+  path="/author/:slug"
+  element={<AuthorPage />}
+/>
       </Routes>
     </Router>
   );

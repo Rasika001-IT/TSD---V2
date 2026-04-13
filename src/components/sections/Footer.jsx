@@ -105,11 +105,11 @@ const Footer = () => {
               <ul className="space-y-3 text-[14px] text-white/60">
                 <li>Press Room</li>
                 <li>
-  <Link to="/contact" className="hover:underline">
+  <Link to="/contact">
     Contact Us
   </Link>
 </li>
-                <li>Advertising</li>
+                <li><Link to="/advertise">Advertising</Link></li>
                 <li>Subscriptions</li>
               </ul>
             </div>
@@ -142,8 +142,8 @@ const Footer = () => {
             <p>© 2025 Rasika. All rights reserved.</p>
 
             <div className="flex items-center gap-6">
-              <span>Privacy Policy</span>
-              <span>Terms of Service</span>
+              <Link to="/privacy-policy">Privacy Policy</Link>
+              <Link to="/content-usage-policy">Terms of Service</Link>
               <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               className="hover:text-white transition">
               <img src={arrow} className="w-4 opacity-70" />
