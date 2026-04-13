@@ -1,106 +1,74 @@
 import Container from "../layout/Container";
+import { Link } from "react-router-dom";
+import usePosts from "../../hooks/usePosts";
 
-import markets from "../../assets/images/more-sections/markets.png";
-import industry from "../../assets/images/more-sections/industry.png";
-import regulations from "../../assets/images/more-sections/regulations.png";
-import sports from "../../assets/images/more-sections/sports.png";
-import startups from "../../assets/images/more-sections/startups.png";
-import technology from "../../assets/images/more-sections/technology.png";
-import healthcare from "../../assets/images/more-sections/healthcare.png";
-import realestate from "../../assets/images/more-sections/realestate.png";
-
-const sections = [
-  {
-    title: "Markets",
-    image: markets,
-    heading:
-      "AI Revolution: How Machine Learning is Transforming Business Operations",
-    points: [
-      "Tech giants announce record quarterly earnings amid market uncertainty.",
-      "The future of remote work : New tools reshaping the workspace.",
-      "Cybersecurity trends every business leader should know.",
-    ],
-  },
-  {
-    title: "Industry",
-    image: industry,
-    heading:
-      "Global Markets Rally as Investors Gain Confidence in Economic Recovery.",
-    points: [
-      "Central bank signal cautious approach to interest rate decisions",
-      "Emerging market shows resilience despite global headwinds",
-      "Cryptocurrency volatility continues as regulations tighten",
-    ],
-  },
+const SECTION_CONFIG = [
   {
     title: "Regulations",
-    image: regulations,
-    heading:
-      "CEO Spotlight: The Visionaries Driving Innovation in 2026.",
-    points: [
-      "Executives' strategies for navigating uncertain economic times",
-      "How top leaders from prioritizing sustainability initiatives",
-      "The rise of servant leadership in modern corporations",
-    ],
+    categoryId: 121,
+    route: "/category/breaking-news",
+    offset: 0,
   },
   {
     title: "Sports",
-    image: sports,
-    heading:
-      "Unicorn Watch: The Startups Poised to Reach Billion-Dollar Valuations.",
-    points: [
-      "Venture capital funding rebounds with focus on AI and climate tech",
-      "Founder stories: From garage to the global success",
-      "The startup ecosystem's most promising sectors for 2026",
-    ],
+    categoryId: 121,
+    route: "/category/breaking-news",
+    offset: 4,
   },
   {
     title: "Startups",
-    image: startups,
-    heading:
-      "Commercial real estate adapts to hybrid work revolution.",
-    points: [
-      "Housing market trends: what buyers need to know this year",
-      "Smart building technology transforming property management",
-      "Investment opportunities in sustainable real estate",
-    ],
+    categoryId: 128,
+    route: "/category/explainers",
+    offset: 0,
   },
   {
-    title: "Technology",
-    image: technology,
-    heading:
-      "Executive Travel: The Best Business Destinations for 2026",
-    points: [
-      "Work-life balance strategies from top executives",
-      "The rise of wellness programs in corporate culture",
-      "Luxury trades what high-net-worth individuals are investing in",
-    ],
+    title: "Crypto",
+    categoryId: 123,
+    route: "/category/crypto",
+    offset: 0,
   },
   {
-    title: "Healthcare",
-    image: healthcare,
-    heading:
-      "It's good to travel to the best business destinations for 2026.",
-    points: [
-      "Executives' strategies for navigating uncertain economic times",
-      "How top leaders from prioritizing sustainability initiatives",
-      "The rise of servant leadership in modern corporations",
-    ],
+    title: "Industry",
+    categoryId: 125,
+    route: "/category/industries",
+    offset: 0,
   },
   {
-    title: "Real Estate",
-    image: realestate,
-    heading:
-      "Unicorn Watch: The Startups Poised to Reach Billion-Dollar Valuations.",
-    points: [
-      "Venture capital funding rebounds with focus on AI and climate tech",
-      "Founder stories: From garage to the global success",
-      "The startup ecosystem's most promising sectors for 2026",
-    ],
+    title: "Markets",
+    categoryId: 125,
+    route: "/category/industries",
+    offset: 4,
+  },
+  {
+    title: "Travel",
+    categoryId: 129,
+    route: "/category/how-to",
+    offset: 0,
+  },
+  {
+    title: "Events",
+    categoryId: 131,
+    route: "/category/events",
+    offset: 0,
   },
 ];
 
+const stripHtml = (html) => {
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || div.innerText || "";
+};
+
+const truncateText = (text, limit) => {
+  if (text.length <= limit) return text;
+  return text.substring(0, limit).trim() + "...";
+};
+
 const MoreSections = () => {
+  const { posts, loading } = usePosts();
+
+  if (loading) return null;
+
   return (
     <section className="bg-[#C89632]/5 py-20">
       <Container>
@@ -110,44 +78,79 @@ const MoreSections = () => {
           <h2 className="font-heading font-bold text-4xl">
             More Sections
           </h2>
+
           <div className="w-16 h-[2px] bg-[#C89632] mx-auto mt-3"></div>
         </div>
 
         {/* GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 border-t border-[#000]/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
 
-          {sections.map((item, index) => (
-            <div
-              key={index}
-              className="p-6 border-r border-b border-[#000]/10 last:border-r-0"
-            >
+          {SECTION_CONFIG.map((section, index) => {
+            const categoryPosts = posts
+              .filter((post) =>
+                post.categories.includes(section.categoryId)
+              )
+              .slice(section.offset, section.offset + 4);
 
-              {/* CATEGORY */}
-              <p className="text-xs uppercase tracking-wide mb-3 font-semibold text-[#444]">
-                {item.title} →
-              </p>
+            if (categoryPosts.length < 4) return null;
 
-              {/* IMAGE */}
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-[180px] object-cover mb-4"
-              />
+            const [mainPost, ...bulletPosts] = categoryPosts;
 
-              {/* HEADING */}
-              <h3 className="font-heading font-semibold text-[18px] leading-snug mb-3">
-                {item.heading}
-              </h3>
+            return (
+              <div
+                key={index}
+                className={`
+                  px-6 py-6
+                  border-r border-[#000]/10
+                  [&:nth-child(4n)]:border-r-0
+                  ${index >= 4 ? "border-t border-[#000]/10 pt-8" : ""}
+                `}
+              >
 
-              {/* BULLETS */}
-              <ul className="space-y-2 text-[14px] text-[#666]">
-                {item.points.map((point, i) => (
-                  <li key={i}>{point}</li>
-                ))}
-              </ul>
+                {/* CATEGORY LABEL */}
+                <Link
+                  to={section.route}
+                  className="text-xs uppercase tracking-wide mb-4 font-semibold text-[#444] block hover:text-[#C89632] transition"
+                >
+                  {section.title} →
+                </Link>
 
-            </div>
-          ))}
+                {/* MAIN IMAGE */}
+                <Link to={`/article/${mainPost.slug}`}>
+                  <img
+                    src={mainPost.image}
+                    alt={stripHtml(mainPost.title)}
+                    className="w-full h-[180px] object-cover mb-4"
+                  />
+                </Link>
+
+                {/* MAIN TITLE */}
+                <Link to={`/article/${mainPost.slug}`}>
+                  <h3
+                    className="font-heading font-semibold text-[18px] leading-snug mb-4 hover:text-[#C89632] transition"
+                    dangerouslySetInnerHTML={{
+                      __html: mainPost.title,
+                    }}
+                  />
+                </Link>
+
+                {/* BULLET POSTS */}
+                <ul className="space-y-3 text-[14px] text-[#666]">
+                  {bulletPosts.map((post) => (
+                    <li key={post.id}>
+                      <Link
+                        to={`/article/${post.slug}`}
+                        className="hover:text-[#C89632] transition"
+                      >
+                        • {truncateText(stripHtml(post.title), 65)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+
+              </div>
+            );
+          })}
 
         </div>
 

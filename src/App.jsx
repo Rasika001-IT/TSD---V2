@@ -27,8 +27,10 @@ function App() {
         <Route path="/news" element={<News />} />
         <Route path="/blogs" element={<Blogs />} />
         <Route path="/magazine" element={<Magazine />} />
+        <Route path="/magazine/:slug" element={<ArticlePage />} />
         <Route path="/featured" element={<Featured />} />
         <Route path="/women-in-business" element={<WomenInBusiness />} />
+        <Route path="/women-in-business/:slug" element={<ArticlePage />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/article/:slug" element={<ArticlePage />} />
