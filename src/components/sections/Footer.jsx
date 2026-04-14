@@ -93,7 +93,9 @@ const Footer = () => {
             <div>
               <h4 className="font-heading text-[20px] mb-5">About</h4>
               <ul className="space-y-3 text-[14px] text-white/60">
-                <li>About Us</li>
+                <li><Link to="/about">
+    About Us
+  </Link></li>
                 <li>Media Kit</li>
                 <li>Contact</li>
                 <li>Careers</li>
@@ -139,7 +141,7 @@ const Footer = () => {
 
           <div className="flex items-center justify-between">
 
-            <p>© 2025 Rasika. All rights reserved.</p>
+            <p>© The Success Digest. All rights reserved.</p>
 
             <div className="flex items-center gap-6">
               <Link to="/privacy-policy">Privacy Policy</Link>
