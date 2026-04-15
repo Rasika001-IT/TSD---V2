@@ -1,50 +1,112 @@
-const Pagination = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-}) => {
-  return (
-    <div className="flex justify-center items-center gap-3 mt-16 font-body">
-      {[1, 2, 3, 4].map((page) => (
-        page <= totalPages && (
-          <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={`
-              w-10 h-10 text-sm rounded-sm transition
-              ${
-                currentPage === page
-                  ? "bg-black text-white"
-                  : "bg-gray-200 text-black"
-              }
-            `}
-          >
-            {page}
-          </button>
-        )
-      ))}
+import React from "react";
 
-      {totalPages > 5 && (
-        <>
-          <span className="px-2 text-gray-400 tracking-widest">
-            ......
+const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+  const renderPages = () => {
+    const pages = [];
+
+    // Show first page if needed
+    if (currentPage > 3) {
+      pages.push(
+        <button
+          key={1}
+          onClick={() => onPageChange(1)}
+          className="w-10 h-10 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+        >
+          1
+        </button>
+      );
+
+      if (currentPage > 4) {
+        pages.push(
+          <span
+            key="ellipsis-start"
+            className="w-10 h-10 flex items-center justify-center text-gray-500"
+          >
+            ...
           </span>
+        );
+      }
+    }
 
-          <button
-            onClick={() => onPageChange(totalPages)}
-            className={`
-              w-10 h-10 text-sm rounded-sm transition
-              ${
-                currentPage === totalPages
-                  ? "bg-black text-white"
-                  : "bg-gray-200 text-black"
-              }
-            `}
+    // Main visible pages
+    const startPage = Math.max(1, currentPage - 1);
+    const endPage = Math.min(totalPages, currentPage + 2);
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => onPageChange(i)}
+          className={`w-10 h-10 rounded-md text-sm font-medium transition ${
+            i === currentPage
+              ? "bg-[#C89B3C] text-white"
+              : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    // Last page logic
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pages.push(
+          <span
+            key="ellipsis-end"
+            className="w-10 h-10 flex items-center justify-center text-gray-500"
           >
-            {totalPages}
-          </button>
-        </>
-      )}
+            ...
+          </span>
+        );
+      }
+
+      pages.push(
+        <button
+          key={totalPages}
+          onClick={() => onPageChange(totalPages)}
+          className="w-10 h-10 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 transition"
+        >
+          {totalPages}
+        </button>
+      );
+    }
+
+    return pages;
+  };
+
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex justify-center items-center gap-2 mt-12 flex-wrap">
+      {/* Previous */}
+      <button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+          currentPage === 1
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+        }`}
+      >
+        Previous
+      </button>
+
+      {/* Numbers */}
+      <div className="flex gap-1">{renderPages()}</div>
+
+      {/* Next */}
+      <button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+          currentPage === totalPages
+            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+            : "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+        }`}
+      >
+        Next
+      </button>
     </div>
   );
 };
