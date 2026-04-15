@@ -1,11 +1,15 @@
 import SmallArticleCard from "./SmallArticleCard";
-import CategoryList from "./CategoryList";
 
-const Sidebar = () => {
+const Sidebar = ({ posts, categories }) => {
   return (
     <div className="flex flex-col gap-8">
-      <SmallArticleCard />
-      <CategoryList />
+      {posts.map((post) => (
+        <SmallArticleCard
+          key={post.id}
+          article={post}
+          categories={categories}
+        />
+      ))}
     </div>
   );
 };
