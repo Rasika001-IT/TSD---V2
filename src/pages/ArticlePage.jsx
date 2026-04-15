@@ -12,6 +12,43 @@ import {
   fetchPosts,
 } from "../services/wordpress";
 
+const parseFAQBlock = (html) => {
+  const faqRegex =
+    /<h[1-6][^>]*>FAQs<\/h[1-6]>\s*<div class="wp-block-uagb-faq[\s\S]*?<\/div><\/div><\/div>/i;
+
+  const faqMatch = html.match(faqRegex);
+
+  if (!faqMatch) {
+    return {
+      cleanedContent: html,
+      faqs: [],
+    };
+  }
+
+  const faqHtml = faqMatch[0];
+
+  const faqItemRegex =
+    /<span class="uagb-question">[\s\S]*?<strong><strong>(.*?)<\/strong><\/strong><\/span>[\s\S]*?<div class="uagb-faq-content"><p>(.*?)<\/p><\/div>/g;
+
+  const faqs = [];
+
+  let itemMatch;
+
+  while ((itemMatch = faqItemRegex.exec(faqHtml)) !== null) {
+    faqs.push({
+      question: itemMatch[1],
+      answer: itemMatch[2],
+    });
+  }
+
+  const cleanedContent = html.replace(faqRegex, "");
+
+  return {
+    cleanedContent,
+    faqs,
+  };
+};
+
 const ArticlePage = () => {
   const { slug } = useParams();
 
@@ -19,6 +56,9 @@ const ArticlePage = () => {
   const [taxonomyData, setTaxonomyData] = useState([]);
   const [mustReadPosts, setMustReadPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const [faqs, setFaqs] = useState([]);
+  const [openFAQ, setOpenFAQ] = useState(null);
 
   useEffect(() => {
     const loadArticle = async () => {
@@ -35,7 +75,15 @@ const ArticlePage = () => {
 
         if (!wpPost) return;
 
-        setPost(wpPost);
+        const { cleanedContent, faqs } =
+          parseFAQBlock(wpPost.content);
+
+        setPost({
+          ...wpPost,
+          content: cleanedContent,
+        });
+
+        setFaqs(faqs);
 
         const categoryItems = categories
           .filter((cat) =>
@@ -67,6 +115,7 @@ const ArticlePage = () => {
           .slice(0, 2);
 
         setMustReadPosts(related);
+
       } catch (error) {
         console.error(error);
       } finally {
@@ -146,8 +195,8 @@ const ArticlePage = () => {
           {/* CONTENT */}
           <article
             className="
-              prose 
-              prose-lg 
+              prose
+              prose-lg
               max-w-none
               prose-headings:font-heading
               prose-headings:text-[#1D1F26]
@@ -162,6 +211,55 @@ const ArticlePage = () => {
               __html: post.content,
             }}
           />
+
+          {/* FAQ SECTION */}
+          {faqs.length > 0 && (
+            <section className="mt-16">
+              <h2 className="font-heading text-4xl mb-8">
+                FAQs
+              </h2>
+
+              <div className="space-y-4">
+                {faqs.map((faq, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-300 rounded-lg overflow-hidden"
+                  >
+                    <button
+                      onClick={() =>
+                        setOpenFAQ(
+                          openFAQ === index
+                            ? null
+                            : index
+                        )
+                      }
+                      className="w-full flex justify-between items-center px-6 py-4 bg-white text-left"
+                    >
+                      <span className="font-medium">
+                        {faq.question}
+                      </span>
+
+                      <span className="text-2xl">
+                        {openFAQ === index
+                          ? "−"
+                          : "+"}
+                      </span>
+                    </button>
+
+                    {openFAQ === index && (
+                      <div className="px-6 py-4 bg-[#FCF9F4]">
+                        <p
+                          dangerouslySetInnerHTML={{
+                            __html: faq.answer,
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* DIVIDER */}
           <div className="flex justify-center my-14">
@@ -201,7 +299,10 @@ const ArticlePage = () => {
                   />
 
                   <h3 className="font-heading text-2xl leading-snug">
-                    {item.title.replace(/<[^>]+>/g, "")}
+                    {item.title.replace(
+                      /<[^>]+>/g,
+                      ""
+                    )}
                   </h3>
                 </Link>
               ))}
