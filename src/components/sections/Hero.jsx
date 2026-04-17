@@ -56,7 +56,7 @@ const Hero = () => {
             <img
               src={heroImage}
               alt="Hero"
-              className="w-full h-[480px] object-cover"
+              className="w-[624px] h-[480px] object-cover"
             />
 
             {/* FLOATING CARD */}

@@ -1,5 +1,5 @@
 import Container from "../layout/Container";
-import usePosts from "../../hooks/usePosts";
+import useCategoryPosts from "../../hooks/useCategoryPosts";
 import { Link } from "react-router-dom";
 
 const stripHtml = (html) => {
@@ -15,12 +15,21 @@ const getReadTime = (content) => {
 };
 
 const FeaturedArticles = () => {
-  const { posts, loading } = usePosts();
+  const { posts, loading } = useCategoryPosts(
+    "news",
+    true
+  );
 
-  if (loading) return <p className="py-20 text-center">Loading...</p>;
+  if (loading) {
+    return (
+      <p className="py-20 text-center">
+        Loading...
+      </p>
+    );
+  }
 
-  const mainPost = posts[5];
-  const sidePosts = posts.slice(6, 11);
+  const mainPost = posts[0];
+  const sidePosts = posts.slice(1, 6);
 
   if (!mainPost) return null;
 
@@ -58,23 +67,29 @@ const FeaturedArticles = () => {
               {mainPost.image && (
                 <img
                   src={mainPost.image}
-                  alt="featured"
+                  alt={stripHtml(mainPost.title)}
                   className="w-full h-[420px] object-cover"
                 />
               )}
 
               <h3
                 className="font-heading font-semibold text-2xl mt-6 leading-snug"
-                dangerouslySetInnerHTML={{ __html: mainPost.title }}
+                dangerouslySetInnerHTML={{
+                  __html: mainPost.title,
+                }}
               />
 
               <div
                 className="text-sm text-black/70 mt-3 max-w-xl"
-                dangerouslySetInnerHTML={{ __html: mainPost.excerpt }}
+                dangerouslySetInnerHTML={{
+                  __html: mainPost.excerpt,
+                }}
               />
 
               <p className="text-xs text-black/50 mt-4">
-                {mainPost.author} | {getReadTime(mainPost.content)} min read
+                {mainPost.author} |{" "}
+                {getReadTime(mainPost.content)} min
+                read
               </p>
 
             </div>
@@ -84,13 +99,16 @@ const FeaturedArticles = () => {
           <div className="flex flex-col gap-5">
 
             {sidePosts.map((post) => (
-              <Link to={`/article/${post.slug}`} key={post.id}>
+              <Link
+                to={`/article/${post.slug}`}
+                key={post.id}
+              >
                 <div className="flex gap-4 items-start cursor-pointer hover:opacity-80 transition">
 
                   {post.image && (
                     <img
                       src={post.image}
-                      alt="side"
+                      alt={stripHtml(post.title)}
                       className="w-[150px] h-[80px] object-cover"
                     />
                   )}
@@ -99,16 +117,22 @@ const FeaturedArticles = () => {
 
                     <p
                       className="font-heading font-semibold text-[14px] leading-tight line-clamp-2"
-                      dangerouslySetInnerHTML={{ __html: post.title }}
+                      dangerouslySetInnerHTML={{
+                        __html: post.title,
+                      }}
                     />
 
                     <div
                       className="text-[13px] text-black/70 mt-1 line-clamp-2"
-                      dangerouslySetInnerHTML={{ __html: post.excerpt }}
+                      dangerouslySetInnerHTML={{
+                        __html: post.excerpt,
+                      }}
                     />
 
                     <p className="text-xs text-black/50 mt-2">
-                      {post.author} | {getReadTime(post.content)} min read
+                      {post.author} |{" "}
+                      {getReadTime(post.content)}{" "}
+                      min read
                     </p>
 
                   </div>

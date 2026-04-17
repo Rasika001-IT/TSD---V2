@@ -6,7 +6,10 @@ import {
   fetchPostsByTag,
 } from "../services/wordpress";
 
-const useCategoryPosts = (slug) => {
+const useCategoryPosts = (
+  slug,
+  includeChildren = false
+) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,12 +25,47 @@ const useCategoryPosts = (slug) => {
         );
 
         if (matchedCategory) {
-          const fetchedPosts = await fetchPostsByCategory(
-            matchedCategory.id,
-            50
-          );
+          let categoryIds = [matchedCategory.id];
 
-          setPosts(fetchedPosts);
+          if (includeChildren) {
+            const childCategories =
+              categories.filter(
+                (cat) =>
+                  cat.parent === matchedCategory.id
+              );
+
+            categoryIds = [
+              matchedCategory.id,
+              ...childCategories.map(
+                (cat) => cat.id
+              ),
+            ];
+          }
+
+          const fetchedPosts =
+            await Promise.all(
+              categoryIds.map((id) =>
+                fetchPostsByCategory(id, 50)
+              )
+            );
+
+          const mergedPosts =
+            fetchedPosts
+              .flat()
+              .filter(
+                (post, index, self) =>
+                  index ===
+                  self.findIndex(
+                    (p) => p.id === post.id
+                  )
+              )
+              .sort(
+                (a, b) =>
+                  new Date(b.date) -
+                  new Date(a.date)
+              );
+
+          setPosts(mergedPosts);
           return;
         }
 
@@ -38,10 +76,11 @@ const useCategoryPosts = (slug) => {
         );
 
         if (matchedTag) {
-          const fetchedPosts = await fetchPostsByTag(
-            matchedTag.id,
-            50
-          );
+          const fetchedPosts =
+            await fetchPostsByTag(
+              matchedTag.id,
+              50
+            );
 
           setPosts(fetchedPosts);
           return;
@@ -57,7 +96,7 @@ const useCategoryPosts = (slug) => {
     };
 
     loadPosts();
-  }, [slug]);
+  }, [slug, includeChildren]);
 
   return { posts, loading };
 };
