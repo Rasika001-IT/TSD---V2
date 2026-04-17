@@ -75,7 +75,7 @@ const Navbar = () => {
       }`}
     >
       <Container>
-        <div className="flex items-center justify-between h-[72px]">
+        <div className="flex items-center justify-between h-[88px]">
 
           <div className="flex items-center gap-10">
 

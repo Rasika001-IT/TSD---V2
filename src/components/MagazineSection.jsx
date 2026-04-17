@@ -2,7 +2,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import Container from "./layout/Container";
@@ -14,58 +14,60 @@ const MagazineSection = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
 
-  // ✅ REAL MAGAZINE DATA WITH SLUGS
-  const magazines = [
-    { 
-      id: 1,
-      title: "Kamiya Jani",
-      slug: "kamiya-jani",
-      image:
-        "https://thesuccessdigest.com/wp-content/uploads/2025/12/Kamiya-Jani-Magazine-1.jpg",
-    },
-    {
-      id: 2,
-      title: "Georgios Matis",
-      slug: "georgios-matis",
-      image:
-        "https://thesuccessdigest.com/wp-content/uploads/2025/10/Georgios-Matis-Magazine-1-791x1024.png",
-    },
-    {
-      id: 3,
-      title: "Zarine Manchanda",
-      slug: "zarine-manchanda",
-      image:
-        "https://thesuccessdigest.com/wp-content/uploads/2025/08/Zarine-Manchanda-Magazine-1-791x1024.png",
-    },
-    {
-      id: 4,
-      title: "Rob Whitfield",
-      slug: "rob-whitfield",
-      image:
-        "https://thesuccessdigest.com/wp-content/uploads/2025/08/Rob-Whitfield-Magazine-1-791x1024.png",
-    },
-    {
-      id: 5,
-      title: "Tia Latrell",
-      slug: "tia-latrell",
-      image:
-        "https://thesuccessdigest.com/wp-content/uploads/2025/07/Tia-Latrell-Magazine-.png",
-    },
-    {
-     id: 6,
-      title: "Naphtali",
-      slug: "naphtali",
-      image:
-        "https://thesuccessdigest.com/wp-content/uploads/2025/07/Naphtali-Magazine-1-3.png",
-    },
-    {
-      id: 7,
-      title: "Kristin",
-      slug: "kristin",
-      image:
-        "https://thesuccessdigest.com/wp-content/uploads/2025/07/Kristin-Magazine-1-2-791x1024.png",
-    },
-  ];
+  const [magazines, setMagazines] = useState([]);
+
+  useEffect(() => {
+    const fetchMagazinePage = async () => {
+      try {
+        const res = await fetch(
+          "https://thesuccessdigest.com/wp-json/wp/v2/pages/3193"
+        );
+
+        const data = await res.json();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data.content.rendered, "text/html");
+
+        const items = Array.from(doc.querySelectorAll("a"))
+  .map((anchor, index) => {
+    const img = anchor.querySelector("img");
+
+    if (!img) return null;
+
+    const href = anchor.href;
+
+    const slug = href
+      .replace("https://thesuccessdigest.com/", "")
+      .replaceAll("/", "");
+
+    const formattedTitle =
+      img.alt?.trim() ||
+      slug
+        .split("-")
+        .map(
+          (word) =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+        )
+        .join(" ");
+
+    return {
+      id: index,
+      title: formattedTitle,
+      image: img.src,
+      slug,
+      originalUrl: href,
+    };
+  })
+  .filter(Boolean);
+
+        setMagazines(items);
+      } catch (err) {
+        console.error("Failed to fetch magazine data:", err);
+      }
+    };
+
+    fetchMagazinePage();
+  }, []);
 
   return (
     <section className="bg-[#C89632]/5 py-20">
@@ -87,7 +89,6 @@ const MagazineSection = () => {
         {/* SLIDER */}
         <div className="relative">
 
-          {/* LEFT ARROW */}
           <button
             ref={prevRef}
             className="absolute left-[-30px] top-1/2 -translate-y-1/2 z-10"
@@ -99,7 +100,6 @@ const MagazineSection = () => {
             />
           </button>
 
-          {/* RIGHT ARROW */}
           <button
             ref={nextRef}
             className="absolute right-[-30px] top-1/2 -translate-y-1/2 z-10"
@@ -133,17 +133,15 @@ const MagazineSection = () => {
           >
             {magazines.map((item) => (
               <SwiperSlide key={item.id}>
-                <Link to={`/article/${item.slug}`}>
+                <Link to={`/magazine/${item.slug}`}>
                   <div className="text-center cursor-pointer hover:opacity-80 transition">
 
-                    {/* IMAGE */}
                     <img
                       src={item.image}
                       alt={item.title}
                       className="w-full aspect-[291/372] object-cover"
                     />
 
-                    {/* TITLE */}
                     <p className="font-heading font-semibold text-[15px] mt-4 leading-snug px-2">
                       {item.title}
                     </p>
@@ -156,7 +154,6 @@ const MagazineSection = () => {
 
         </div>
 
-        {/* BUTTON */}
         <div className="flex justify-center mt-12">
           <button className="bg-black text-white px-6 py-3 text-sm rounded-[5px] hover:opacity-80 transition">
             Subscribe to Print + Digital

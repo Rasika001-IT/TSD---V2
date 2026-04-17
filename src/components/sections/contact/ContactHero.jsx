@@ -1,11 +1,15 @@
 const ContactHero = () => {
   return (
-    <section className="pt-28 pb-14 text-center">
-      <h1 className="font-heading text-[42px] md:text-[56px] leading-tight font-medium text-[#1D1F26]">
-        Contact Us
-      </h1>
+    <section className="pt-24 pb-16 bg-[#FCF9F4]">
+      <div className="max-w-4xl mx-auto px-6 text-center">
 
-      <div className="w-16 h-[2px] bg-[#C8A96A] mx-auto mt-5"></div>
+        <h1 className="font-heading font-bold text-[48px] md:text-[64px] leading-tight text-[#1D1F26]">
+          Contact Us
+        </h1>
+
+        <div className="w-20 h-[3px] bg-[#C89632] mx-auto mt-4 mb-8"></div>
+
+      </div>
     </section>
   );
 };

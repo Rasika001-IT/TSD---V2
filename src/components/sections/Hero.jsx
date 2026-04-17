@@ -34,7 +34,7 @@ const Hero = () => {
             {/* BUTTONS */}
             <div className="mt-8 flex items-center gap-4">
 
-              <Link to="/article/kamiya-jani">
+              <Link to="/article/kamiya-jani-most-innovative-entrepreneur-of-2025">
                 <button className="bg-black text-white px-6 py-3 text-[14px] rounded-md hover:bg-black/80 transition">
                   Read full story →
                 </button>
@@ -56,7 +56,7 @@ const Hero = () => {
             <img
               src={heroImage}
               alt="Hero"
-              className="w-full h-[480px] object-cover"
+              className="w-[624px] h-[480px] object-cover"
             />
 
             {/* FLOATING CARD */}
