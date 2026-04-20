@@ -62,15 +62,23 @@ app.use(errorHandler);
 
 export const startServer = async () => {
     try {
-        await connectRedis();
-        await refreshService.initialWarmup();
-        refreshService.startBackgroundRefresh();
+        const redisClient = await connectRedis();
+        if (!redisClient) {
+            console.warn('Redis not available - running without caching');
+        }
+        
+        // Only start refresh service if Redis is available
+        if (redisClient) {
+            await refreshService.initialWarmup();
+            refreshService.startBackgroundRefresh();
+        }
         
         const PORT = process.env.PORT || 3000;
         app.listen(PORT, () => {
         logger.info(`🚀 Server running on port ${PORT}`);
         logger.info(`📡 Health check: http://localhost:${PORT}/health`);
         logger.info(`🔒 CORS allowed origins: ${allowedOrigins.join(', ')}`);
+        logger.info(redisClient ? '🗄️  Redis caching enabled' : '⚠️  Redis caching disabled');
         });
     } catch (error) {
         logger.error('Failed to start server', error.message);
