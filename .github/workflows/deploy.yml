@@ -85,7 +85,6 @@ jobs:
           echo "Starting Redis..."
           docker run -d --name tsd-redis \
             --network tsd-network \
-            -p 6379:6379 \
             redis:7-alpine \
             redis-server --appendonly yes
 
