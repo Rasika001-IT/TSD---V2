@@ -67,19 +67,28 @@ jobs:
         run: |
           set -euo pipefail
 
-          docker network create tsd-network 2>/dev/null || true
+          # Pull images first
+          docker pull "${DH_USER}/tsd-backend:${SHA}"
+          docker pull "${DH_USER}/tsd-frontend:${SHA}"
 
-          # Stop old containers
-          docker stop tsd-backend tsd-frontend 2>/dev/null || true
-          docker rm tsd-backend tsd-frontend 2>/dev/null || true
+          # Stop and remove old containers
+          docker stop tsd-frontend tsd-backend 2>/dev/null || true
+          docker rm tsd-frontend tsd-backend 2>/dev/null || true
 
-          # Start backend
+          # Remove and recreate network fresh every time
+          docker network rm tsd-network 2>/dev/null || true
+          docker network create tsd-network
+
+          # Start backend first and wait for it
           docker run -d --name tsd-backend \
             --restart unless-stopped \
             --network tsd-network \
             -v /home/ubuntu/tsd/backend/.env:/app/.env:ro \
             -p 3000:3000 \
             "${DH_USER}/tsd-backend:${SHA}"
+
+          # Wait for backend to be ready
+          sleep 5
 
           # Start frontend
           docker run -d --name tsd-frontend \
@@ -89,6 +98,16 @@ jobs:
             -p 443:443 \
             -v /etc/letsencrypt:/etc/letsencrypt:ro \
             "${DH_USER}/tsd-frontend:${SHA}"
+
+          sleep 5
+
+          # Verify both containers are running
+          docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
+
+          # Verify network connectivity
+          docker inspect tsd-backend | grep IPAddress
+          docker inspect tsd-frontend | grep IPAddress
+          docker exec tsd-frontend ping -c 2 tsd-backend
 
           sleep 5
           docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}"
