@@ -8,10 +8,17 @@ RUN npm ci
 
 COPY . .
 
+# Accept build arguments for production URLs
+ARG VITE_API_URL
+ARG VITE_FRONTEND_URL
+
+# Set environment variables for Vite build
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_FRONTEND_URL=$VITE_FRONTEND_URL
+
 RUN npm run build
 
 FROM nginx:alpine AS production
-
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
