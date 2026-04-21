@@ -38,6 +38,9 @@
 
 
 import { createClient } from 'redis';
+import dotenv from 'dotenv';
+
+dotenv.config()
 
 const redisHost = process.env.REDIS_HOST || 'redis';
 const redisPort = Number(process.env.REDIS_PORT) || 6379;
