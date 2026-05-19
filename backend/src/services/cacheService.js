@@ -19,53 +19,53 @@ export const cacheKeys = {
 export const cacheService = {
     async get(key) {
         try {
-        const data = await redisClient.get(key);
-        if (data) {
-            return JSON.parse(data);
-        }
-        return null;
+            const data = await redisClient.get(key);
+            if (data) {
+                return JSON.parse(data);
+            }
+            return null;
         } catch (error) {
-        logger.error(`Cache get error for key ${key}`, error.message);
-        return null;
+            logger.error(`Cache get error for key ${key}`, error.message);
+            return null;
         }
     },
 
 
     async set(key, value, ttl = CACHE_TTL.POSTS) {
         try {
-        await redisClient.setEx(key, ttl, JSON.stringify(value));
-        logger.info(`Cache set for key ${key} with TTL ${ttl}s`);
-        return true;
+            await redisClient.setEx(key, ttl, JSON.stringify(value));
+            logger.info(`Cache set for key ${key} with TTL ${ttl}s`);
+            return true;
         } catch (error) {
-        logger.error(`Cache set error for key ${key}`, error.message);
-        return false;
+            logger.error(`Cache set error for key ${key}`, error.message);
+            return false;
         }
     },
 
 
     async delete(key) {
         try {
-        await redisClient.del(key);
-        logger.info(`Cache deleted for key ${key}`);
-        return true;
+            await redisClient.del(key);
+            logger.info(`Cache deleted for key ${key}`);
+            return true;
         } catch (error) {
-        logger.error(`Cache delete error for key ${key}`, error.message);
-        return false;
+            logger.error(`Cache delete error for key ${key}`, error.message);
+            return false;
         }
     },
 
 
     async deletePattern(pattern) {
         try {
-        const keys = await redisClient.keys(pattern);
-        if (keys.length > 0) {
-            await redisClient.del(keys);
-            logger.info(`Cache deleted ${keys.length} keys matching pattern ${pattern}`);
-        }
-        return true;
+            const keys = await redisClient.keys(pattern);
+            if (keys.length > 0) {
+                await redisClient.del(keys);
+                logger.info(`Cache deleted ${keys.length} keys matching pattern ${pattern}`);
+            }
+            return true;
         } catch (error) {
-        logger.error(`Cache delete pattern error for ${pattern}`, error.message);
-        return false;
+            logger.error(`Cache delete pattern error for ${pattern}`, error.message);
+            return false;
         }
     },
 

@@ -11,71 +11,71 @@ class RefreshService {
 
     async refreshAllPosts() {
         try {
-        logger.info('Refreshing all posts cache');
-        const posts = await wordpressService.fetchAllPosts();
-        await cacheService.set(cacheKeys.ALL_POSTS, posts, CACHE_TTL.POSTS);
-        await cacheService.setLastModified(new Date().toISOString());
-        logger.info(`Refreshed ${posts.length} posts to cache`);
-        return posts;
+            logger.info('Refreshing all posts cache');
+            const posts = await wordpressService.fetchAllPosts();
+            await cacheService.set(cacheKeys.ALL_POSTS, posts, CACHE_TTL.POSTS);
+            await cacheService.setLastModified(new Date().toISOString());
+            logger.info(`Refreshed ${posts.length} posts to cache`);
+            return posts;
         } catch (error) {
-        logger.error('Failed to refresh posts cache', error.message);
-        throw error;
+            logger.error('Failed to refresh posts cache', error.message);
+            throw error;
         }
     }
 
 
     async refreshCategories() {
         try {
-        logger.info('Refreshing categories cache');
-        const categories = await wordpressService.fetchCategories();
-        await cacheService.set(cacheKeys.CATEGORIES, categories, CACHE_TTL.CATEGORIES);
-        logger.info(`Refreshed ${categories.length} categories to cache`);
-        return categories;
+            logger.info('Refreshing categories cache');
+            const categories = await wordpressService.fetchCategories();
+            await cacheService.set(cacheKeys.CATEGORIES, categories, CACHE_TTL.CATEGORIES);
+            logger.info(`Refreshed ${categories.length} categories to cache`);
+            return categories;
         } catch (error) {
-        logger.error('Failed to refresh categories cache', error.message);
-        throw error;
+            logger.error('Failed to refresh categories cache', error.message);
+            throw error;
         }
     }
 
 
     async refreshTags() {
         try {
-        logger.info('Refreshing tags cache');
-        const tags = await wordpressService.fetchTags();
-        await cacheService.set(cacheKeys.TAGS, tags, CACHE_TTL.TAGS);
-        logger.info(`Refreshed ${tags.length} tags to cache`);
-        return tags;
+            logger.info('Refreshing tags cache');
+            const tags = await wordpressService.fetchTags();
+            await cacheService.set(cacheKeys.TAGS, tags, CACHE_TTL.TAGS);
+            logger.info(`Refreshed ${tags.length} tags to cache`);
+            return tags;
         } catch (error) {
-        logger.error('Failed to refresh tags cache', error.message);
-        throw error;
+            logger.error('Failed to refresh tags cache', error.message);
+            throw error;
         }
     }
 
 
     async refreshPostBySlug(slug) {
         try {
-        const post = await wordpressService.fetchPostBySlug(slug);
-        if (post) {
-            await cacheService.set(cacheKeys.POST_BY_SLUG(slug), post, CACHE_TTL.SINGLE_POST);
-            logger.info(`Refreshed post ${slug} to cache`);
-        }
-        return post;
+            const post = await wordpressService.fetchPostBySlug(slug);
+            if (post) {
+                await cacheService.set(cacheKeys.POST_BY_SLUG(slug), post, CACHE_TTL.SINGLE_POST);
+                logger.info(`Refreshed post ${slug} to cache`);
+            }
+            return post;
         } catch (error) {
-        logger.error(`Failed to refresh post ${slug}`, error.message);
-        throw error;
+            logger.error(`Failed to refresh post ${slug}`, error.message);
+            throw error;
         }
     }
 
 
     async refreshPostsByCategory(categoryId) {
         try {
-        const posts = await wordpressService.fetchPostsByCategory(categoryId);
-        await cacheService.set(cacheKeys.POSTS_BY_CATEGORY(categoryId), posts, CACHE_TTL.POSTS);
-        logger.info(`Refreshed ${posts.length} posts for category ${categoryId}`);
-        return posts;
+            const posts = await wordpressService.fetchPostsByCategory(categoryId);
+            await cacheService.set(cacheKeys.POSTS_BY_CATEGORY(categoryId), posts, CACHE_TTL.POSTS);
+            logger.info(`Refreshed ${posts.length} posts for category ${categoryId}`);
+            return posts;
         } catch (error) {
-        logger.error(`Failed to refresh posts for category ${categoryId}`, error.message);
-        throw error;
+            logger.error(`Failed to refresh posts for category ${categoryId}`, error.message);
+            throw error;
         }
     }
 
@@ -118,14 +118,14 @@ class RefreshService {
     async initialWarmup() {
         logger.info('Starting cache warmup...');
         try {
-        await Promise.all([
-            this.refreshAllPosts(),
-            this.refreshCategories(),
-            this.refreshTags(),
-        ]);
-        logger.info('Cache warmup completed');
+            await Promise.all([
+                this.refreshAllPosts(),
+                this.refreshCategories(),
+                this.refreshTags(),
+            ]);
+            logger.info('Cache warmup completed');
         } catch (error) {
-        logger.error('Cache warmup failed', error.message);
+            logger.error('Cache warmup failed', error.message);
         }
     }
     }
