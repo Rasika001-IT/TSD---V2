@@ -20,27 +20,26 @@ app.set('trust proxy', 1);
 
 // CORS Configuration
 const allowedOrigins = process.env.FRONTEND_URL
-    ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
-    : [];
+  ? process.env.FRONTEND_URL.split(',').map(url => url.trim())
+  : [];
 
 const corsOptions = {
-    origin: (origin, callback) => {
-        // Allow non-browser requests (Postman, curl)
-        if (!origin) return callback(null, true);
+  origin: (origin, callback) => {
+    // Allow Postman, curl, Hoppscotch desktop
+    if (!origin) {
+      return callback(null, true);
+    }
 
-        // If no env set → allow all (prevents Railway blocking)
-        if (allowedOrigins.length === 0) {
-            return callback(null, true);
-        }
+    // Allow frontend URLs
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
 
-        if (allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            logger.warn(`CORS blocked request from: ${origin}`);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
+    // Block other origins
+    return callback(null, false);
+  },
+
+  credentials: true,
 };
 
 const limiter = rateLimit({
