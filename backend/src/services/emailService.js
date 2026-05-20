@@ -4,7 +4,8 @@ import { logger } from '../utils/logger.js';
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: parseInt(process.env.EMAIL_PORT),
-    secure: true,
+    secure: false, // false for 587 (STARTTLS), true for 465 (SSL)
+    requireTLS: true, 
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
