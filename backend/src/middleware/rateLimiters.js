@@ -7,7 +7,6 @@ export const authRateLimit = rateLimit({
     message: 'Too many login attempts, please try again later',
     standardHeaders: true,
     legacyHeaders: false,
-    validate: { trustProxy: false },
 });
 
 export const otpRateLimit = rateLimit({
@@ -16,7 +15,6 @@ export const otpRateLimit = rateLimit({
     message: 'Too many OTP requests, please try again later',
     standardHeaders: true,
     legacyHeaders: false,
-    validate: { trustProxy: false },
 });
 
 export const generalRateLimit = rateLimit({
@@ -24,7 +22,6 @@ export const generalRateLimit = rateLimit({
     max: 100, // 100 requests per IP
     standardHeaders: true,
     legacyHeaders: false,
-    validate: { trustProxy: false },
 });
 
 
@@ -34,5 +31,4 @@ export const subscriptionRateLimit = rateLimit({
     message: 'Too many subscription attempts, please try again later',
     standardHeaders: true,
     legacyHeaders: false,
-    validate: { trustProxy: false },
 });

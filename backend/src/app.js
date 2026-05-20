@@ -16,7 +16,7 @@ import subscriptionRouter from './routes/subscription.js';
 
 
 const app = express();
-app.set('trust proxy', true);
+app.set('trust proxy', 1);
 
 // CORS Configuration
 const allowedOrigins = process.env.FRONTEND_URL
@@ -46,7 +46,6 @@ const corsOptions = {
 const limiter = rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 100,
-    validate: { trustProxy: false },
 });
 
 // Middlewares
