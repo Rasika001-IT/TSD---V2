@@ -5,11 +5,17 @@ const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: parseInt(process.env.EMAIL_PORT),
     secure: false, // false for 587 (STARTTLS), true for 465 (SSL)
-    requireTLS: true, 
+    requireTLS: true,
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
-    }
+    },
+    connectionTimeout: 30000, // 30 seconds
+    greetingTimeout: 15000, // 15 seconds
+    socketTimeout: 15000, // 15 seconds
+    tls: {
+        rejectUnauthorized: true, // Enforce SSL certificate validation
+    },
 });
 
 
@@ -36,7 +42,13 @@ export const sendOTPEmail = async (email, otp) => {
         await transporter.sendMail(mailOptions);
         logger.info(`OTP email sent to ${email}`);
     } catch (error) {
-        logger.error('Failed to send OTP email:', error);
+        logger.error('Failed to send OTP email:', {
+            message: error.message,
+            code: error.code,
+            command: error.command,
+            host: process.env.EMAIL_HOST,
+            port: process.env.EMAIL_PORT
+        });
         throw new Error('Failed to send OTP email');
     }
 };
@@ -63,11 +75,16 @@ export const sendSubscriptionThankYouEmail = async (email, name) => {
         await transporter.sendMail(mailOptions);
         logger.info(`Subscription thank you email sent to ${email}`);
     } catch (error) {
-        logger.error('Failed to send subscription thank you email:', error);
+        logger.error('Failed to send subscription thank you email:', {
+            message: error.message,
+            code: error.code,
+            command: error.command,
+            host: process.env.EMAIL_HOST,
+            port: process.env.EMAIL_PORT
+        });
         throw new Error('Failed to send subscription thank you email');
     }
 };
-
 
 
 export const sendSubscriptionNotificationEmail = async (name, email) => {
@@ -98,7 +115,13 @@ export const sendSubscriptionNotificationEmail = async (name, email) => {
         await transporter.sendMail(mailOptions);
         logger.info(`Subscription notification email sent to TSD team for ${email}`);
     } catch (error) {
-        logger.error('Failed to send subscription notification email:', error);
+        logger.error('Failed to send subscription notification email:', {
+            message: error.message,
+            code: error.code,
+            command: error.command,
+            host: process.env.EMAIL_HOST,
+            port: process.env.EMAIL_PORT
+        });
         throw new Error('Failed to send subscription notification email');
     }
 };
