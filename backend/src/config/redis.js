@@ -11,12 +11,13 @@ const redisClient = createClient({
   socket: {
     host: redisHost,
     port: redisPort,
-    connectTimeout: 10000, // 10 seconds
-    lazyConnect: true, // Don't connect immediately
+    connectTimeout: 5000,
+    reconnectStrategy: (retries) => {
+      if (retries >= 3) return new Error('Max Redis retries reached');
+      return 2000; // wait 2s between retries
+    },
   },
   password: redisPassword,
-  retryDelayOnFailover: 100,
-  maxRetriesPerRequest: 3,
 });
 
 redisClient.on('error', (err) => {
@@ -32,24 +33,13 @@ redisClient.on('reconnecting', () => {
 });
 
 export const connectRedis = async () => {
-  const maxRetries = 5;
-  const retryDelay = 5000; // 5 seconds
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      await redisClient.connect();
-      console.log('Redis connection established');
-      return redisClient;
-    } catch (error) {
-      console.error(`Redis connection attempt ${attempt}/${maxRetries} failed:`, error.message);
-      
-      if (attempt === maxRetries) {
-        console.error('Max Redis connection retries reached. Continuing without Redis...');
-        return null; // Return null instead of throwing
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, retryDelay));
-    }
+  try {
+    await redisClient.connect();
+    console.log('Redis connection established');
+    return redisClient;
+  } catch (error) {
+    console.error('Redis connection failed:', error.message);
+    return null;
   }
 };
 
