@@ -14,8 +14,8 @@ export const protect = async (req, res, next) => {
             return res.status(401).json({ error: 'Access token required' });
         }
 
-        // Check if token is blacklisted
-        const isBlacklisted = await redisClient.get(`blacklist:${token}`);
+        // Check if token is blacklisted (skip if Redis not ready)
+        const isBlacklisted = redisClient.isReady ? await redisClient.get(`blacklist:${token}`) : null;
         if (isBlacklisted) {
             return res.status(401).json({ error: 'Token has been revoked' });
         }
