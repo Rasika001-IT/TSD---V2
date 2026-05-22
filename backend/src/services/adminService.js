@@ -5,6 +5,8 @@ import User from '../models/User.js';
 import { sendOTPEmail } from './emailService.js';
 import { logger } from '../utils/logger.js';
 
+const r = () => redisClient.isReady ? redisClient : null;
+
 
 export const adminSigninService = async (email, password) => {
     // Find admin user
@@ -23,9 +25,9 @@ export const adminSigninService = async (email, password) => {
     const otp = crypto.randomInt(100000, 999999).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
-    // Store OTP in Redis
-    await redisClient.setEx(`otp:${email}`, 600, otp);
-    
+    // Store OTP in Redis (optional — DB backup below is the fallback)
+    if (r()) await r().setEx(`otp:${email}`, 600, otp);
+
     // Backup in database
     admin.otp = {
         code: otp,
@@ -57,7 +59,7 @@ export const adminVerifyOTPService = async (email, otp) => {
     let verificationSource = 'unknown';
 
     // Check Redis first (primary)
-    const redisOTP = await redisClient.get(`otp:${email}`);
+    const redisOTP = r() ? await r().get(`otp:${email}`) : null;
     if (redisOTP === otp) {
         isValidOTP = true;
         verificationSource = 'redis';
@@ -80,7 +82,7 @@ export const adminVerifyOTPService = async (email, otp) => {
     );
 
     // Cleanup OTP from both Redis and database
-    await redisClient.del(`otp:${email}`);
+    if (r()) await r().del(`otp:${email}`);
     admin.otp = undefined;
     await admin.save();
 
@@ -101,10 +103,10 @@ export const adminVerifyOTPService = async (email, otp) => {
 export const adminResendOTPService = async (email) => {
     // Rate limiting check (3 requests per hour per email)
     const rateLimitKey = `resend_otp:${email}`;
-    const currentCount = await redisClient.get(rateLimitKey);
-    
+    const currentCount = r() ? await r().get(rateLimitKey) : null;
+
     if (currentCount && parseInt(currentCount) >= 3) {
-        const ttl = await redisClient.ttl(rateLimitKey);
+        const ttl = r() ? await r().ttl(rateLimitKey) : 3600;
         throw new Error(`Too many OTP requests. Retry after ${ttl} seconds`);
     }
 
@@ -119,16 +121,18 @@ export const adminResendOTPService = async (email) => {
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
     // Update rate limit counter
-    const pipeline = redisClient.multi();
-    if (currentCount) {
-        pipeline.incr(rateLimitKey);
-    } else {
-        pipeline.setEx(rateLimitKey, 3600, '1');
+    if (r()) {
+        const pipeline = r().multi();
+        if (currentCount) {
+            pipeline.incr(rateLimitKey);
+        } else {
+            pipeline.setEx(rateLimitKey, 3600, '1');
+        }
+        await pipeline.exec();
     }
-    await pipeline.exec();
 
     // Store new OTP in both places
-    await redisClient.setEx(`otp:${email}`, 600, newOTP);
+    if (r()) await r().setEx(`otp:${email}`, 600, newOTP);
     
     admin.otp = {
         code: newOTP,
@@ -150,17 +154,13 @@ export const adminLogoutService = async (token, user) => {
     // Log user activity
     logger.info(`Admin logout: ${user.email}`);
 
-    // Blacklist token in Redis with 24-hour expiry
-    await redisClient.setEx(`blacklist:${token}`, 86400, 'true');
-
-    // Remove user session from cache if exists
-    await redisClient.del(`session:${user._id}`);
-
-    // Use pipeline for atomic operations
-    const pipeline = redisClient.multi();
-    pipeline.setEx(`blacklist:${token}`, 86400, 'true');
-    pipeline.del(`session:${user._id}`);
-    await pipeline.exec();
+    // Blacklist token and remove session in Redis
+    if (r()) {
+        const pipeline = r().multi();
+        pipeline.setEx(`blacklist:${token}`, 86400, 'true');
+        pipeline.del(`session:${user._id}`);
+        await pipeline.exec();
+    }
 
     return { message: 'Logout successful' };
 };
