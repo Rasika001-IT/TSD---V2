@@ -75,7 +75,7 @@ app.use(errorHandler);
 // Start Server
 export const startServer = async () => {
     try {
-        // Database connection 
+        // 1. Connect to MongoDB first (required — exit if it fails)
         try {
             await connectDatabase();
             logger.info('MongoDB connected');
@@ -84,30 +84,22 @@ export const startServer = async () => {
             process.exit(1);
         }
 
-        // Redis should not crash app if unavailable
-        try {
-            await connectRedis();
-            logger.info('Redis connected');
-        } catch (err) {
-            logger.warn('Redis connection failed, continuing without it');
-        }
-
-        // Background jobs s
-        try {
-            await refreshService.initialWarmup();
-            refreshService.startBackgroundRefresh();
-        } catch (err) {
-            logger.warn('Background service failed to start');
-        }
-
+        // 2. Start listening immediately so Railway health check passes
         const PORT = process.env.PORT || 3000;
-
         app.listen(PORT, '0.0.0.0', () => {
             logger.info(`Server running on port ${PORT}`);
-            logger.info(`Live URL: https://<your-domain>`);
             logger.info(`Health: /health`);
             logger.info(`Admin APIs: /api/admin/*`);
         });
+
+        // 3. Redis and cache warmup run in background — do NOT block server start
+        connectRedis()
+            .then(() => logger.info('Redis connected'))
+            .catch(() => logger.warn('Redis connection failed, continuing without it'));
+
+        refreshService.initialWarmup()
+            .then(() => refreshService.startBackgroundRefresh())
+            .catch(() => logger.warn('Background service failed to start'));
 
     } catch (error) {
         logger.error('Failed to start server:', error.message);

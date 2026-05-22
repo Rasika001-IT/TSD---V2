@@ -16,8 +16,11 @@ export const cacheKeys = {
 
 
 
+const isRedisReady = () => redisClient.isReady;
+
 export const cacheService = {
     async get(key) {
+        if (!isRedisReady()) return null;
         try {
             const data = await redisClient.get(key);
             if (data) {
@@ -32,6 +35,7 @@ export const cacheService = {
 
 
     async set(key, value, ttl = CACHE_TTL.POSTS) {
+        if (!isRedisReady()) return false;
         try {
             await redisClient.setEx(key, ttl, JSON.stringify(value));
             logger.info(`Cache set for key ${key} with TTL ${ttl}s`);
@@ -44,6 +48,7 @@ export const cacheService = {
 
 
     async delete(key) {
+        if (!isRedisReady()) return false;
         try {
             await redisClient.del(key);
             logger.info(`Cache deleted for key ${key}`);
@@ -56,6 +61,7 @@ export const cacheService = {
 
 
     async deletePattern(pattern) {
+        if (!isRedisReady()) return false;
         try {
             const keys = await redisClient.keys(pattern);
             if (keys.length > 0) {
